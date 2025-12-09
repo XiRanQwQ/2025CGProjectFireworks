@@ -1,0 +1,46 @@
+# Build directories
+/build/
+/out/
+/bin/
+/obj/
+/x64/
+/x86/
+/Debug/
+/Release/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+_Deps/
+
+# C++ compiled files
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# IDE - Visual Studio
+.vs/
+*.suo
+*.user
+*.vcxproj.user
+
+# IDE - VS Code
+.vscode/
+
+# IDE - CLion
+.idea/
+cmake-build-*/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

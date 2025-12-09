@@ -1,0 +1,59 @@
+#ifndef SKYBOX_H
+#define SKYBOX_H
+
+#include"glad/glad.h"
+#include <GLFW/glfw3.h>
+#include<glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
+#include <string>
+#include <vector>
+#include "shader.h"
+
+// 天空盒类
+
+class Skybox {
+public:
+
+    // 构造函数
+
+    Skybox();
+    
+    // 析构函数
+
+    ~Skybox();
+    
+    // 初始化天空盒
+
+    bool init();
+    
+    // 渲染天空盒
+
+    void render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+    
+    // 设置天空盒大小
+
+    void setSize(float size);
+    
+    // 获取天空盒大小
+
+    float getSize() const;
+    
+private:
+
+    // 天空盒参数
+
+    float size;
+    GLuint VAO, VBO;
+    
+    // 天空盒顶点数据
+
+    float vertices[108]; 
+    
+    // 立方体的6个面，每个面2个三角形，每个三角形3个顶点，每个顶点3个坐标
+
+    // 初始化天空盒几何体
+
+    void initGeometry();
+};
+
+#endif // SKYBOX_H
