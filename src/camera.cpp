@@ -84,7 +84,8 @@ void Camera::move(float forward, float right, float up) {
     // 根据方向向量移动相机
 
     position += front * forward;
-    position += this->right * right;
+    glm::vec3 worldRight = glm::normalize(glm::cross(glm::vec3(0, 1, 0), front));
+    position += worldRight * right;
     position += this->up * up;
 
 

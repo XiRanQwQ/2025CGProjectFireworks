@@ -5,6 +5,8 @@
 #include<glm/vec4.hpp>
 // 粒子类
 
+
+
 class Particle {
 public:
 
@@ -46,15 +48,7 @@ public:
 
     float size;
     
-    // 重力加速度
-    static constexpr float GRAVITY = 250.0f;   // 直接给值
-
-    
-    static constexpr int SNAP = 60;              // 拖尾缓冲数组长度
-    glm::vec3 hist[SNAP] = {};                  // 历史位置
-    int   histHead = 0;                         // 写指针
-    float histTimer = 0.0f;                     // 累计定时器
-	float histInterval = 0.02f;                 // 采样间隔时间
+    bool isTrail = false;
 };
 
 #endif // PARTICLE_H

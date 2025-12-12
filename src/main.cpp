@@ -9,14 +9,10 @@
 #include "camera.h"
 #include "skybox.h"
 
-<<<<<<< HEAD
+
 
 #include <filesystem> 
 
-// 窗口尺寸
-=======
-#include <filesystem>
->>>>>>> a84869da9409fdb65200a8a4124e90fa54e25bbd
 
 
 const int WINDOW_WIDTH = 800;
@@ -101,7 +97,7 @@ int main() {
         return -1;
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -158,7 +154,7 @@ int main() {
     // 初始化相机 - 调整位置以确保能看到烟花
 
     camera = new Camera(
-        glm::vec3(0.0f, 50.0f, 200.0f), 
+        glm::vec3(50.0f, 5.0f, 0.0f), 
         glm::vec3(0.0f, 0.0f, 0.0f),     
         glm::vec3(0.0f, 1.0f, 0.0f),     
         60.0f,                           
@@ -196,6 +192,8 @@ int main() {
 
     // 渲染循环
 
+
+
     while (!glfwWindowShouldClose(window)) {
 
 
@@ -204,6 +202,7 @@ int main() {
         double currentTime = glfwGetTime();
         float deltaTime = static_cast<float>(currentTime - lastTime);
         lastTime = currentTime;
+
 
 
         // 处理输入
@@ -265,9 +264,20 @@ int main() {
 
         // 渲染粒子系统
 
+        glDepthMask(GL_FALSE);
+        glEnable(GL_DEPTH_TEST);   
+
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+
         particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
-     
+        // 4. 恢复常规状态，再画场景物体
+        glDepthMask(GL_TRUE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // 交换缓冲
 

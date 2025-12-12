@@ -3,7 +3,7 @@
 
 #include "particle.h"
 #include <vector>
-#include <random>
+
 
 // 烟花状态枚举
 
@@ -21,8 +21,9 @@ class Firework {
 public:
 
     // 构造函数
-
-    Firework(float x, float y, float z, float vx, float vy, float vz, int particleCount, float r, float g, float b);
+    Firework(float x, float y, float z, float vx, float vy, float vz, int particleCount, float r, float g, float b,float a);
+    Firework(glm::vec3 position, glm::vec3 velocity, int particleCount,glm::vec4 color);
+	Firework(glm::vec3 position, glm::vec3 velocity, int particleCount, glm::vec4 color, glm::vec4 color1, glm::vec4 color2);
     
     // 更新烟花状态
 
@@ -48,16 +49,17 @@ public:
 
     const std::vector<Particle>& getParticles() const;
 
-   
+    
 private:
 
     // 火箭粒子
 
     Particle rocket;
     
-    // 爆炸产生的粒子
+    // 爆炸产生粒子和拖影点精灵
 
     std::vector<Particle> particles;
+
     
     // 状态
 
@@ -67,24 +69,19 @@ private:
 
     int particleCount;
     
-    // 颜色
+    // 爆炸颜色
 
-    float r, g, b;
+	glm::vec3 color1; //爆炸内圈颜色
 
-    
-    // 随机数生成器
+	glm::vec3 color2; //爆炸外圈颜色
 
-    //std::random_device rd;
+    int sparkCount = 10;
 
-    std::mt19937 gen;
-    
     // 爆炸函数
 
     void explode();
     
-    // 生成随机数
-
-    float random(float min, float max);
+    
 
 };
 

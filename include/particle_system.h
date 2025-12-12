@@ -37,10 +37,12 @@ public:
     
 	// 添加粒子数据用于渲染
 
-	void addParticleForRendering(const Particle& particle);
+    void addParticleForRendering(std::vector<float>& particleData, const Particle& particle);
 
-    // 添加拖尾折线
-	void addTrailStrip(const Particle& particle);
+    void createGradientTexture();
+
+    void generateAndBindTrailTexture(int size , float density);
+
 
 private:
 
@@ -52,20 +54,11 @@ private:
 
     int maxFireworks;
     
-    // 随机数生成器
-
-    std::random_device rd;
-    std::mt19937 gen;
-    
-    // 生成随机数
-
-    float random(float min, float max);
-    int randomInt(int min, int max);
-    
     // 着色器
 
     Shader* particleShader;
     
+	Shader* rocketShader;
     // VAO和VBO
 
     unsigned int VAO, VBO;
@@ -73,10 +66,16 @@ private:
     // 粒子数据
 
     std::vector<float> particleData;
+	std::vector<float> rocketData;
+
+	// 拖尾纹理ID
+
+    GLuint texGradient = 0;
+    GLuint trailTextureID;
     
     // 最大粒子数量
 
-    const int MAX_PARTICLES = 10000;
+    const int MAX_PARTICLES = 200000;
 };
 
 #endif // PARTICLE_SYSTEM_H

@@ -156,13 +156,9 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
 
     if (!shaderInitialized) {
         try {
-<<<<<<< HEAD
-            skyboxShader = Shader("C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/skybox.vert",
-                "C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/skybox.frag");
-=======
+
             skyboxShader = Shader("shaders/skybox.vert",
                 "shaders/skybox.frag");
->>>>>>> a84869da9409fdb65200a8a4124e90fa54e25bbd
             shaderInitialized = true;
             std::cout << "create success" << std::endl;
         }
