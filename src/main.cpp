@@ -9,10 +9,14 @@
 #include "camera.h"
 #include "skybox.h"
 
+<<<<<<< HEAD
 
 #include <filesystem> 
 
 // 窗口尺寸
+=======
+#include <filesystem>
+>>>>>>> a84869da9409fdb65200a8a4124e90fa54e25bbd
 
 
 const int WINDOW_WIDTH = 800;
@@ -85,6 +89,10 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 
 int main() {
 
+    std::cout << "Current working directory: "
+        << std::filesystem::current_path().string()
+        << std::endl;
+
     // 初始化GLFW
 
 
@@ -93,6 +101,9 @@ int main() {
         return -1;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // 创建窗口
 
@@ -137,13 +148,13 @@ int main() {
     // 设置清除颜色
 
     glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
-
+    glClear( GL_DEPTH_BUFFER_BIT);
     // 启用混合
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
+    
+    
     // 初始化相机 - 调整位置以确保能看到烟花
 
     camera = new Camera(
@@ -233,33 +244,30 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        // 启用深度测试
-
-        glEnable(GL_DEPTH_TEST);
-
-
-
-        // 更新粒子系统
-
-        particleSystem.update(deltaTime);
-
-
-        // 渲染粒子系统
-
-        particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
-
         //test
 
         glm::mat4 view = camera->getViewMatrix();
         glm::mat4 projection = camera->getProjectionMatrix();
-        std::cout << " (View Matrix) : " << view[3][3] << std::endl;
-        std::cout << " (Projection Matrix) : " << projection[3][3] << std::endl;
+        /*std::cout << " (View Matrix) : " << view[3][3] << std::endl;
+        std::cout << " (Projection Matrix) : " << projection[3][3] << std::endl;*/
 
         // 渲染天空盒
 
         //skybox->render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
         skybox->render(view, projection);
+
+        // 更新粒子系统
+
+        particleSystem.update(deltaTime);
+
+
+
+        // 渲染粒子系统
+
+        particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
+
+     
 
         // 交换缓冲
 

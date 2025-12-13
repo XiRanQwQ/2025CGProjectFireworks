@@ -1,12 +1,13 @@
 #include "firework.h"
 #include <cmath>
+#include <iostream>
 #define M_PI 3.14159265358979323846
 
 Firework::Firework(float x, float y, float z, float vx, float vy, float vz, int particleCount, float r, float g, float b)
-    : rocket(x, y, z, vx, vy, vz, 5.0f, r, g, b, 1.0f),
+    : rocket(x, y, z, vx, vy, vz, 50.0f, r, g, b, 1.0f),
     status(LAUNCHING),
     particleCount(particleCount),
-    r(r), g(g), b(b)
+	r(r), g(g), b(b)
 {
     // 初始化随机数生成器
 
@@ -14,23 +15,28 @@ Firework::Firework(float x, float y, float z, float vx, float vy, float vz, int 
 }
 
 void Firework::update(float deltaTime) {
+
+	
+	
     switch (status) {
     case LAUNCHING:
 
+      
         // 更新火箭粒子
 
         rocket.update(deltaTime);
 
 
-        // 检查是否到达最高点（速度接近零）
+		// 检查是否到达爆炸时间点
 
-        if (rocket.isAlive() && rocket.vy < 0.1f) {
+       
+        if (rocket.isAlive() && rocket.velocity.y<0.1f) {
             explode();
             status = EXPLOSING;
-        }
-        else if (!rocket.isAlive()) {
+        }else if (!rocket.isAlive()) {
+            // 火箭粒子生命周期结束但未爆炸，直接结束烟花
             status = FINISHED;
-        }
+		}
         break;
 
     case EXPLOSING:
@@ -122,7 +128,7 @@ void Firework::explode() {
         // 添加粒子
 
 
-        particles.emplace_back(rocket.x, rocket.y, rocket.z, vx, vy, 0.0f, life, particleR, particleG, particleB, 1.0f);
+        particles.emplace_back(rocket.position.x, rocket.position.y, rocket.position.z, vx, vy, 0.0f, life, particleR, particleG, particleB, 1.0f);
     }
 }
 

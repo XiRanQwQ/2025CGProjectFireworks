@@ -47,10 +47,11 @@ public:
     // 获取爆炸粒子列表
 
     const std::vector<Particle>& getParticles() const;
-    
+
+   
 private:
 
-    // 烟花粒子
+    // 火箭粒子
 
     Particle rocket;
     
@@ -69,6 +70,7 @@ private:
     // 颜色
 
     float r, g, b;
+
     
     // 随机数生成器
 
@@ -83,6 +85,7 @@ private:
     // 生成随机数
 
     float random(float min, float max);
+
 };
 
 #endif // FIREWORK_H

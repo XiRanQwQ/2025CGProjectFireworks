@@ -1,6 +1,8 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
+#include<glm/vec3.hpp>
+#include<glm/vec4.hpp>
 // 粒子类
 
 class Particle {
@@ -9,6 +11,7 @@ public:
     // 构造函数
 
     Particle(float x, float y, float z, float vx, float vy, float vz, float life, float r, float g, float b, float a);
+	Particle(glm::vec3 pos, glm::vec3 vel, float life, glm::vec4 color);
     
     // 更新粒子状态
 
@@ -24,11 +27,11 @@ public:
 
     // 位置
 
-    float x, y, z;
+    glm::vec3 position;
     
     // 速度
 
-    float vx, vy, vz;
+	glm::vec3 velocity;
     
     // 生命周期
 
@@ -37,15 +40,21 @@ public:
     
     // 颜色
 
-    float r, g, b, a;
+	glm::vec4 color;
     
     // 大小
 
     float size;
     
     // 重力加速度
+    static constexpr float GRAVITY = 250.0f;   // 直接给值
 
-    float gravity = 50.0f; // 增加重力加速度以适应3D空间
+    
+    static constexpr int SNAP = 60;              // 拖尾缓冲数组长度
+    glm::vec3 hist[SNAP] = {};                  // 历史位置
+    int   histHead = 0;                         // 写指针
+    float histTimer = 0.0f;                     // 累计定时器
+	float histInterval = 0.02f;                 // 采样间隔时间
 };
 
 #endif // PARTICLE_H

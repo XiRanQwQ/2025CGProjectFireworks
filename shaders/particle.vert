@@ -11,6 +11,6 @@ out vec4 ourColor;
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
-    gl_PointSize = 8.0; // 增大点大小为8像素，使其更容易看到
+    gl_PointSize = 4.0 * aColor.a ; 
     ourColor = aColor;
 }

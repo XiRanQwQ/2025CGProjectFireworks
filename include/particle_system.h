@@ -35,6 +35,13 @@ public:
 
     void addFirework();
     
+	// 添加粒子数据用于渲染
+
+	void addParticleForRendering(const Particle& particle);
+
+    // 添加拖尾折线
+	void addTrailStrip(const Particle& particle);
+
 private:
 
     // 烟花列表
