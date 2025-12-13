@@ -15,7 +15,12 @@ void ParticleSystem::init() {
 
     // 加载粒子着色器
 
+<<<<<<< HEAD
+    // 使用相对路径，确保可执行工作目录包含 shaders 目录
+    particleShader = new Shader("C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/particle.vert", "C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/particle.frag");
+=======
     particleShader = new Shader("shaders/particle.vert", "shaders/particle.frag");
+>>>>>>> a84869da9409fdb65200a8a4124e90fa54e25bbd
 
     // 初始化粒子数据向量
 
@@ -53,6 +58,9 @@ void ParticleSystem::init() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 使顶点着色器中设置的 gl_PointSize 生效
+    glEnable(GL_PROGRAM_POINT_SIZE);
 }
 
 void ParticleSystem::update(float deltaTime) {

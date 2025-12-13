@@ -9,6 +9,7 @@
 #include <vector>
 #include "shader.h"
 
+
 // 天空盒类
 
 class Skybox {
@@ -24,7 +25,7 @@ public:
     
     // 初始化天空盒
 
-    bool init();
+    bool init(const std::vector<std::string>& textureFaces);
     
     // 渲染天空盒
 
@@ -44,12 +45,20 @@ private:
 
     float size;
     GLuint VAO, VBO;
+
+    GLuint cubeMapID;
+
+    //立方体贴图ID
     
     // 天空盒顶点数据
 
     float vertices[108]; 
     
     // 立方体的6个面，每个面2个三角形，每个三角形3个顶点，每个顶点3个坐标
+
+    GLuint loadCubeMap(const std::vector<std::string>& faces);
+
+    //加载立方体贴图
 
     // 初始化天空盒几何体
 

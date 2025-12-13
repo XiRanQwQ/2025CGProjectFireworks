@@ -2,6 +2,12 @@
 #include <iostream>
 #include<filesystem>
 #include<fstream>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+//图片加载库
+
 Skybox::Skybox() {
 
     // 初始化天空盒大小
@@ -18,6 +24,7 @@ Skybox::Skybox() {
 
     VAO = 0;
     VBO = 0;
+    cubeMapID = 0;
 }
 
 Skybox::~Skybox() {
@@ -30,14 +37,52 @@ Skybox::~Skybox() {
     if (VAO != 0) {
         glDeleteVertexArrays(1, &VAO);
     }
+    if (cubeMapID != 0) {
+        glDeleteTextures(1, &cubeMapID);
+    }
 }
 
-bool Skybox::init() {
+GLuint Skybox::loadCubeMap(const std::vector<std::string>& faces) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    
+    //stb_set_flip_vertically_on_load(false);
+    
+    // 不要翻转图像，因为立方体贴图的方向与普通2D纹理不同
+
+    for (GLuint i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+        else {
+            std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
+    // 设置纹理参数
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    // 解绑纹理
+
+    return textureID;
+}
+
+bool Skybox::init(const std::vector<std::string>& faces) {
 
     // 初始化几何体
 
     initGeometry();
-
 
     // 创建VAO和VBO
 
@@ -75,6 +120,13 @@ bool Skybox::init() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    cubeMapID = loadCubeMap(faces);
+    if(cubeMapID == 0){
+        std::cerr << "Failed to load cubemap texture" << std::endl;
+        return false;
+    }
+
+
     return true;
 }
 
@@ -104,8 +156,13 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
 
     if (!shaderInitialized) {
         try {
+<<<<<<< HEAD
+            skyboxShader = Shader("C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/skybox.vert",
+                "C:/Users/lenovo/Desktop/2025CGProjectFireworks/shaders/skybox.frag");
+=======
             skyboxShader = Shader("shaders/skybox.vert",
                 "shaders/skybox.frag");
+>>>>>>> a84869da9409fdb65200a8a4124e90fa54e25bbd
             shaderInitialized = true;
             std::cout << "create success" << std::endl;
         }
@@ -128,6 +185,11 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
 
     skyboxShader.setMat4("projection", projectionMatrix);
     skyboxShader.setMat4("view", skyboxView);
+
+    // 绑定立方体贴图
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
+    skyboxShader.setInt("skybox", 0);
 
     // 绑定VAO并绘制
 
