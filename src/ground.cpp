@@ -145,7 +145,7 @@ bool Ground::init()
 void Ground::render(const glm::mat4& view, const glm::mat4& projection, float yOffset)
 {
 
-	std::cout << "=== ground render test ===" << std::endl;
+	//std::cout << "=== ground render test ===" << std::endl;
 
     // 检查OpenGL错误
 

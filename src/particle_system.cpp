@@ -14,7 +14,6 @@ void ParticleSystem::init()
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     particleShader = new Shader("shaders/particle_trail.vert", "shaders/particle_trail.frag");
 	rocketShader = new Shader("shaders/rocket.vert", "shaders/particle.frag");
@@ -133,13 +132,14 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
 
     // === 2. 渲染火箭（如果有）===
     if (!rocketData.empty()) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         rocketShader->use();
         rocketShader->setMat4("projection", projectionMatrix);
         rocketShader->setMat4("view", viewMatrix);
         rocketShader->setMat4("model", glm::mat4(1.0f));
         rocketShader->setBool("u_useTrail", true);
         //glActiveTexture(GL_TEXTURE0 + 1); // 使用合适的纹理单元
-        //glBindTexture(GL_TEXTURE_2D, trailTextureID); // trailTextureID是你生成的拖尾纹理的ID
+        //glBindTexture(GL_TEXTURE_2D, trailTextureID); // trailTextureID
         //rocketShader->setInt("u_trailMask", 1);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER,

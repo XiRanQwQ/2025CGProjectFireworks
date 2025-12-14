@@ -193,7 +193,7 @@ bool Tree::init()
 void Tree::draw(const glm::mat4& view, const glm::mat4& projection, const glm::mat4& model)
 {
 
-    std::cout << "=== tree draw test ===" << std::endl;
+    //std::cout << "=== tree draw test ===" << std::endl;
 
     if (!shader) {
         std::cerr << "Tree shader not initialized!" << std::endl;
