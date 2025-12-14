@@ -1,6 +1,6 @@
 #include "tree.h"
 #include <glad/glad.h>
-#include <glm/glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "stb_image.h"
 #include <iostream>
