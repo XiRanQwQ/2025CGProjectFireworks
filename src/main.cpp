@@ -3,11 +3,16 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstdlib>  
+#include <ctime>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "particle_system.h"
 #include "camera.h"
 #include "skybox.h"
+#include "tree.h"
+#include "ground.h"
+
 
 #include <filesystem> 
 
@@ -29,6 +34,8 @@ const int MAX_FIREWORKS = 20;
 
 Camera* camera = nullptr;
 Skybox* skybox = nullptr;
+Ground* ground = nullptr;
+Tree* tree = nullptr;
 
 
 // 鼠标状态
@@ -49,6 +56,25 @@ const float cameraSpeed = 50.0f;
 
 
 const float mouseSensitivity = 0.001f;
+
+// 森林构造参数
+
+const int FOREST_SIZE_X = 20;     // X 方向多少棵
+const int FOREST_SIZE_Z = 20;     // Z 方向多少棵
+const float TREE_SPACING = 40.0f; // 基础间距
+const float JITTER = 1.2f;       // 随机扰动范围
+const float TREE_BASE_SCALE = 50.0f;  // 放大50 倍
+constexpr float WORLD_GROUND_Y_OFFSET = -30.0f;
+
+// 全局树木模型指针
+
+struct TreeInstance {
+    glm::vec3 position;
+    float scale;
+    float rotationY;
+};
+
+std::vector<TreeInstance> forest;
 
 
 // 键盘回调函数
@@ -179,6 +205,65 @@ int main() {
     }
 
 
+    
+    // 初始化地面
+
+    std::cout << "ground addr = " << ground << std::endl;
+    ground = new Ground(1000.0f);
+    std::cout << "ground addr after new = " << ground << std::endl;
+
+    if (ground == nullptr) {
+        std::cerr << "ground is nullptr!" << std::endl;
+        return -1;
+    }
+
+    if (!ground->init()) {
+        std::cerr << "Failed to initialize ground" << std::endl;
+        return -1;
+    }
+
+    // 初始化树木
+    
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    std::cout << "tree addr = " << tree << std::endl;
+    tree = new Tree();
+    std::cout << "tree addr after new = " << tree << std::endl;
+
+    if (!tree->init()) {
+        std::cerr << "Failed to initialize tree" << std::endl;
+        return -1;
+    }
+
+    // 生成森林 
+    
+    for (int x = 0; x < FOREST_SIZE_X; ++x)
+    {
+        for (int z = 0; z < FOREST_SIZE_Z; ++z)
+        {
+            float jitterX = ((rand() % 100) / 100.0f - 0.5f) * JITTER;
+            float jitterZ = ((rand() % 100) / 100.0f - 0.5f) * JITTER;
+
+            TreeInstance t;
+            t.position = glm::vec3(
+                x * TREE_SPACING + jitterX,
+                0.0f,
+                z * TREE_SPACING + jitterZ
+            );
+
+            // 随机缩放
+            t.scale = 0.8f + (rand() % 100) / 100.0f * 0.5f;
+
+            // 随机 Y 轴旋转
+            t.rotationY = (rand() % 360) * glm::radians(1.0f);
+
+            forest.push_back(t);
+        }
+    }
+
+
+    
+
     // 初始化粒子系统
 
     ParticleSystem particleSystem(MAX_FIREWORKS);
@@ -246,6 +331,12 @@ int main() {
         /*std::cout << " (View Matrix) : " << view[3][3] << std::endl;
         std::cout << " (Projection Matrix) : " << projection[3][3] << std::endl;*/
 
+        
+		// 渲染地面
+        
+		ground->render(view, projection, WORLD_GROUND_Y_OFFSET);
+
+        
         // 渲染天空盒
 
         //skybox->render(camera->getViewMatrix(), camera->getProjectionMatrix());
@@ -262,6 +353,33 @@ int main() {
 
         particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
+
+        // 渲染树木
+
+        for (const auto& t : forest)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+
+            /*model = glm::translate(model, t.position);*/
+            model = glm::translate(
+                model,
+                glm::vec3(
+                    t.position.x,
+                    t.position.y + WORLD_GROUND_Y_OFFSET,
+                    t.position.z
+                )
+            );
+
+            model = glm::rotate(model, t.rotationY, glm::vec3(0, 1, 0));
+            model = glm::scale(model, glm::vec3(TREE_BASE_SCALE * t.scale));
+
+            tree->draw(
+                camera->getViewMatrix(),
+                camera->getProjectionMatrix(),
+                model
+            );
+        }
+
      
 
         // 交换缓冲
@@ -274,6 +392,8 @@ int main() {
 
     delete camera;
     delete skybox;
+    delete ground;
+    delete tree;
 
     glfwDestroyWindow(window);
     glfwTerminate();
