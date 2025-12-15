@@ -80,17 +80,13 @@ void Camera::rotate(float yawOffset, float pitchOffset) {
 }
 
 void Camera::move(float forward, float right, float up) {
+    // 新增一行：水平化前向，抬头后仍往前走
+    glm::vec3 flatFront = glm::normalize(glm::vec3(front.x, 0.f, front.z));
 
-    // 根据方向向量移动相机
-
-    position += front * forward;
-    glm::vec3 worldRight = glm::normalize(glm::cross(glm::vec3(0, 1, 0), front));
+    position += flatFront * forward;          // 原来用 front，现在用 flatFront
+    glm::vec3 worldRight = glm::normalize(glm::cross(glm::vec3(0, 1, 0), flatFront));
     position += worldRight * right;
     position += this->up * up;
-
-
-    // 更新目标点
-
     target = position + front;
 }
 
@@ -121,7 +117,7 @@ void Camera::updateVectors() {
 
     // 更新上向量
 
-    this->up = glm::normalize(glm::cross(right, front));
+    //this->up = glm::normalize(glm::cross(right, front));
 }
 
 glm::mat4 Camera::getViewMatrix() const {

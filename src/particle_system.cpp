@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stb_image.h>
 #include"utils.h"
+#include "audio.h"
 
 ParticleSystem::ParticleSystem(int maxFireworks)
     : maxFireworks(maxFireworks){}
@@ -17,6 +18,12 @@ void ParticleSystem::init()
 
     particleShader = new Shader("shaders/particle_trail.vert", "shaders/particle_trail.frag");
 	rocketShader = new Shader("shaders/rocket.vert", "shaders/particle.frag");
+    
+    // Load firework audio files
+    fireworkSoundBuffer = AudioManager::getInstance().loadWAV("launch.wav");
+    if (fireworkSoundBuffer == 0) {
+        std::cerr << "Failed to load launch.wav" << std::endl;
+    }
 
     // 1. 新建 10×float 统一 VAO/VBO
     glGenVertexArrays(1, &VAO);
@@ -81,11 +88,8 @@ void ParticleSystem::generateAndBindTrailTexture(int size = 64, float density = 
 
 
 void ParticleSystem::update(float deltaTime) {
-    // 随机添加烟花（增加概率，便于测试）
 
-    if (fireworks.size() < maxFireworks && random(0.0f, 1.0f) < 0.3f) {
-        addFirework();
-    }
+
 
     // 更新所有烟花
 
@@ -183,25 +187,31 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
 }
 
 
-void ParticleSystem::addFirework() {
-    // 随机位置
+void ParticleSystem::addFirework(FireworkType type) {
 
-    auto pos = glm::vec3(random(-300.0f,300.0f), 0.0f, random(-300.0f,300.0f));
+	std::cout << "Adding firework of type " << (type == common ? "common" : "scatter") << std::endl;
 
-  
-    // 随机速度
+	if (fireworks.size() >= maxFireworks) return;
+    // 1. 位置/速度/粒子数保持原样
+    auto pos = glm::vec3(random(50.0f, 70.0f), 0.0f, random(-200.0f, 200.0f));
+    auto vol = glm::vec3(0.0f, random(80.0f, 120.0f), 0.0f);
+    int particleCount = random(150, 400);
 
-	auto vol = glm::vec3(0.0f, random(80.0f,120.0f), 0.0f);
-  
-    // 粒子数量
+    float baseHue = random(15.0f, 220.0f);   // 橙→黄
+    float sat = random(0.7f, 0.95f);  // 不要太灰
+    float val = random(0.85f, 1.0f);   // 亮度拉满
+    glm::vec4 rocketColor = hsv2rgb(baseHue, sat, val);
 
-    int particleCount = random(50, 200);
+    // 3. 再叠一层极小幅 RGB 抖动，让同批次也略有差别
+    rocketColor.r = glm::clamp(rocketColor.r + random(-0.05f, 0.05f), 0.0f, 1.0f);
+    rocketColor.g = glm::clamp(rocketColor.g + random(-0.05f, 0.05f), 0.0f, 1.0f);
+    rocketColor.b = glm::clamp(rocketColor.b + random(-0.05f, 0.05f), 0.0f, 1.0f);
 
-    // 白炽色
-    //黑色测试用
-    glm::vec4 rocketscolor = glm::vec4(1.0, 0.0, 0.0,1.0);
+    // 3. 创建烟花
+    fireworks.emplace_back(pos, vol, particleCount, rocketColor,type);
 
-    // 创建烟花
-
-	fireworks.emplace_back(pos, vol, particleCount, rocketscolor);
+    // 4. 音频保持原样
+    if (AudioManager::getInstance().getNumActiveSources() >= 16) return;
+    if (fireworkSoundBuffer != 0)
+        AudioManager::getInstance().playSound(fireworkSoundBuffer, 0.5f, 1.0f);
 }

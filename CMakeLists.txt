@@ -24,10 +24,16 @@ set(SOURCES
     src/particle_system.cpp
     src/firework.cpp
     src/shader.cpp
+    src/audio.cpp
+    src/ground.cpp
+    src/tree.cpp
+    src/utils.cpp
 )
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(SFML 2.5 COMPONENTS audio REQUIRED)
+
+# Find OpenAL
+find_package(OpenAL REQUIRED)
 
 if(NOT OPENGL_FOUND)
     message(FATAL_ERROR "OpenGL not found!")
@@ -35,6 +41,10 @@ endif()
 
 if(NOT glfw3_FOUND)
     message(FATAL_ERROR "GLFW not found!")
+endif()
+
+if(NOT OPENAL_FOUND)
+    message(FATAL_ERROR "OpenAL not found!")
 endif()
 # 添加可执行文件
 add_executable(
@@ -44,6 +54,7 @@ add_executable(
 target_link_libraries(${PROJECT_NAME}
     OpenGL::GL
     glfw
+    OpenAL::OpenAL
 )
 # 处理着色器文件
 file(GLOB SHADER_SOURCES
@@ -55,4 +66,14 @@ file(GLOB SHADER_SOURCES
 foreach(SHADER ${SHADER_SOURCES})
     get_filename_component(FILENAME ${SHADER} NAME)
     configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${FILENAME} COPYONLY)
+endforeach()
+
+# 将音频文件复制到输出目录
+set(AUDIO_FILES
+    ${CMAKE_SOURCE_DIR}/launch.wav
+    ${CMAKE_SOURCE_DIR}/explode.wav
+)
+foreach(AUDIO ${AUDIO_FILES})
+    get_filename_component(FILENAME ${AUDIO} NAME)
+    configure_file(${AUDIO} ${CMAKE_BINARY_DIR}/${FILENAME} COPYONLY)
 endforeach()

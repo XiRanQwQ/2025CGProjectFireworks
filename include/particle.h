@@ -14,11 +14,11 @@ public:
 
     Particle(float x, float y, float z, float vx, float vy, float vz, float life, float r, float g, float b, float a);
 	Particle(glm::vec3 pos, glm::vec3 vel, float life, glm::vec4 color);
-    
+    Particle(glm::vec3 pos, glm::vec3 vel, float life, glm::vec4 color,bool isTrail,bool isPhysicsEnabled);
     // 更新粒子状态
 
 
-    void update(float deltaTime);
+    void update(float deltaTime,float sway=0.0f);
     
     // 检查粒子是否存活
 
@@ -49,6 +49,7 @@ public:
     float size;
     
     bool isTrail = false;
+	bool isPhysicsEnabled = true;
 };
 
 #endif // PARTICLE_H

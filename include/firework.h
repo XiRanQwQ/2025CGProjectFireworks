@@ -15,16 +15,27 @@ enum FireworkStatus {
     FINISHED      
 };
 
+//烟花类型枚举（可重构优化）
+enum FireworkType {
+	common,     //普通烟花
+	scatter,    //散点型烟花
+	star,        //星形烟花
+    flower,
+};
+
 // 烟花类
 
 class Firework {
 public:
 
+    inline static const float sway = 0.5f;
+
     // 构造函数
     Firework(float x, float y, float z, float vx, float vy, float vz, int particleCount, float r, float g, float b,float a);
-    Firework(glm::vec3 position, glm::vec3 velocity, int particleCount,glm::vec4 color);
-	Firework(glm::vec3 position, glm::vec3 velocity, int particleCount, glm::vec4 color, glm::vec4 color1, glm::vec4 color2);
+    Firework(glm::vec3 position, glm::vec3 velocity, int particleCount,glm::vec4 color,FireworkType type=common);
+	
     
+
     // 更新烟花状态
 
     void update(float deltaTime);
@@ -71,18 +82,19 @@ private:
     
     // 爆炸颜色
 
-	glm::vec3 color1; //爆炸内圈颜色
 
-	glm::vec3 color2; //爆炸外圈颜色
-
-    int sparkCount = 10;
+	FireworkType type;
 
     // 爆炸函数
 
     void explode();
     
-    
-
+	void explode_common();
+    void explode_scatter();
+    void explode_star();
+	void explode_flower();
 };
+
+
 
 #endif // FIREWORK_H

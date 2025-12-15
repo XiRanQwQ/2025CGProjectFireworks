@@ -1,6 +1,6 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
-
+#include<AL/al.h>
 #include "firework.h"
 #include "shader.h"
 #include <vector>
@@ -33,7 +33,7 @@ public:
     
     // 添加烟花
 
-    void addFirework();
+    void addFirework(FireworkType type=common);
     
 	// 添加粒子数据用于渲染
 
@@ -59,6 +59,7 @@ private:
     Shader* particleShader;
     
 	Shader* rocketShader;
+
     // VAO和VBO
 
     unsigned int VAO, VBO;
@@ -76,6 +77,12 @@ private:
     // 最大粒子数量
 
     const int MAX_PARTICLES = 200000;
+    
+
+    // 音频缓冲区ID
+
+    ALuint fireworkSoundBuffer = 0;
+
 };
 
 #endif // PARTICLE_SYSTEM_H

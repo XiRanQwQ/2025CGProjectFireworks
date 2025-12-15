@@ -12,6 +12,7 @@
 #include "skybox.h"
 #include "tree.h"
 #include "ground.h"
+#include "audio.h"
 
 
 
@@ -47,6 +48,13 @@ bool firstMouse = true;
 float lastX = WINDOW_WIDTH / 2.0f;
 float lastY = WINDOW_HEIGHT / 2.0f;
 
+
+//键盘状态
+
+static bool wasPressed_F = false;
+static bool wasPressed_G = false;
+static bool wasPressed_H = false;
+static bool wasPressed_J = false;
 
 // 相机移动速度
 
@@ -109,6 +117,8 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
         camera->rotate(xoffset, yoffset);
     }
 }
+
+
 
 int main() {
 
@@ -181,8 +191,8 @@ int main() {
     // 初始化相机 - 调整位置以确保能看到烟花
 
     camera = new Camera(
-        glm::vec3(50.0f, 5.0f, 0.0f), 
-        glm::vec3(0.0f, 0.0f, 0.0f),     
+        glm::vec3(-200.0f, 10.0f, 0.0f), 
+        glm::vec3(0.0f, 10.0f, 0.0f),     
         glm::vec3(0.0f, 1.0f, 0.0f),     
         60.0f,                           
         (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT  
@@ -192,12 +202,12 @@ int main() {
     // 初始化天空盒
 
     std::vector<std::string> skyboxTextures = {
-        "resources/skybox/right.jpg",
-        "resources/skybox/left.jpg",
-        "resources/skybox/top.jpg",
-        "resources/skybox/bottom.jpg",
-        "resources/skybox/front.jpg",
-        "resources/skybox/back.jpg"
+        "D:/CGFP ver1/resources/skybox/right.jpg",
+        "D:/CGFP ver1/resources/skybox/left.jpg",
+        "D:/CGFP ver1/resources/skybox/top.jpg",
+        "D:/CGFP ver1/resources/skybox/bottom.jpg",
+        "D:/CGFP ver1/resources/skybox/front.jpg",
+        "D:/CGFP ver1/resources/skybox/back.jpg"
     };
 
     skybox = new Skybox();
@@ -266,6 +276,11 @@ int main() {
 
     
 
+    // 初始化音频系统
+    if (!AudioManager::getInstance().init()) {
+        std::cerr << "Failed to initialize audio system" << std::endl;
+    }
+
     // 初始化粒子系统
 
     ParticleSystem particleSystem(MAX_FIREWORKS);
@@ -277,7 +292,6 @@ int main() {
     double lastTime = glfwGetTime();
 
     // 渲染循环
-
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -305,10 +319,10 @@ int main() {
             camera->move(-cameraSpeed * deltaTime, 0.0f, 0.0f);
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            camera->move(0.0f, -cameraSpeed * deltaTime, 0.0f);
+            camera->move(0.0f, cameraSpeed * deltaTime, 0.0f);
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            camera->move(0.0f, cameraSpeed * deltaTime, 0.0f);
+            camera->move(0.0f, -cameraSpeed * deltaTime, 0.0f);
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             camera->move(0.0f, 0.0f, cameraSpeed * deltaTime);
@@ -316,6 +330,45 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             camera->move(0.0f, 0.0f, -cameraSpeed * deltaTime);
         }
+        // 单次触发，按一下 F 发一颗
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) { 
+            if (!wasPressed_F) {
+                particleSystem.addFirework();   // 立即调用你现成的接口
+				wasPressed_F = true;
+            }
+        }
+        else {
+            
+            wasPressed_F = false;
+        }
+        if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
+            if(!wasPressed_G){
+                particleSystem.addFirework(scatter);
+                wasPressed_G = true;
+            }
+        }
+        else{
+            wasPressed_G = false;
+		}
+        if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
+            if(!wasPressed_H){
+                particleSystem.addFirework(star);
+                wasPressed_H = true;
+            }
+        }
+        else {
+            wasPressed_H = false;
+        }
+        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+            if (!wasPressed_J) {
+                particleSystem.addFirework(flower);
+                wasPressed_J = true;
+            }
+           
+        } else {
+                wasPressed_J = false;
+        }
+
 
 
         // 更新相机
@@ -347,6 +400,9 @@ int main() {
         //skybox->render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
         skybox->render(view, projection);
+
+        // 更新音频系统
+        AudioManager::getInstance().update();
 
         // 更新粒子系统
 
@@ -403,6 +459,9 @@ int main() {
     delete skybox;
     delete ground;
     delete tree;
+
+    // 关闭音频系统
+    AudioManager::getInstance().shutdown();
 
     glfwDestroyWindow(window);
     glfwTerminate();
