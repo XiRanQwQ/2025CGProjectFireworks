@@ -33,7 +33,7 @@ public:
     
     // 添加烟花
 
-    void addFirework();
+    void addFirework(FireworkType type=common);
     
 	// 添加粒子数据用于渲染
 
