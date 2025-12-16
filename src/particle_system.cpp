@@ -20,7 +20,7 @@ void ParticleSystem::init()
 	rocketShader = new Shader("shaders/rocket.vert", "shaders/particle.frag");
     
     // Load firework audio files
-    fireworkSoundBuffer = AudioManager::getInstance().loadWAV("launch.wav");
+    fireworkSoundBuffer = AudioManager::getInstance().loadWAV("resources/sound/launch.wav");
     if (fireworkSoundBuffer == 0) {
         std::cerr << "Failed to load launch.wav" << std::endl;
     }

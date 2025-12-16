@@ -202,12 +202,12 @@ int main() {
     // 初始化天空盒
 
     std::vector<std::string> skyboxTextures = {
-        "D:/CGFP ver1/resources/skybox/right.jpg",
-        "D:/CGFP ver1/resources/skybox/left.jpg",
-        "D:/CGFP ver1/resources/skybox/top.jpg",
-        "D:/CGFP ver1/resources/skybox/bottom.jpg",
-        "D:/CGFP ver1/resources/skybox/front.jpg",
-        "D:/CGFP ver1/resources/skybox/back.jpg"
+        "resources/skybox/right.jpg",
+        "resources/skybox/left.jpg",
+        "resources/skybox/top.jpg",
+        "resources/skybox/bottom.jpg",
+        "resources/skybox/front.jpg",
+        "resources/skybox/back.jpg"
     };
 
     skybox = new Skybox();
@@ -410,7 +410,7 @@ int main() {
 
 
 
-        // 渲染粒子系统
+       
 
         // 渲染树木
 
@@ -441,7 +441,7 @@ int main() {
      
         glDepthMask(GL_FALSE);
         glEnable(GL_DEPTH_TEST);   
- 
+         // 渲染粒子系统
         particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
         glDepthMask(GL_TRUE);
