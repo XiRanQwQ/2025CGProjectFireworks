@@ -13,7 +13,7 @@
 #include "tree.h"
 #include "ground.h"
 #include "audio.h"
-
+#include "post_processing.h"
 
 
 // 窗口尺寸
@@ -39,7 +39,7 @@ Camera* camera = nullptr;
 Skybox* skybox = nullptr;
 Ground* ground = nullptr;
 Tree* tree = nullptr;
-
+PostProcessing* postProcessing = nullptr;
 
 // 鼠标状态
 
@@ -287,6 +287,14 @@ int main() {
     particleSystem.init();
 
 
+
+    // 初始化后处理效果
+    postProcessing = new PostProcessing(WINDOW_WIDTH, WINDOW_HEIGHT);
+    postProcessing->setBloomThreshold(0.7f);
+    postProcessing->setBloomBlurSize(1.5f);
+    postProcessing->setBloomIntensity(1.5f);
+    postProcessing->setBloomPasses(3);
+
     // 时间管理
 
     double lastTime = glfwGetTime();
@@ -375,6 +383,8 @@ int main() {
 
         camera->update();
 
+        // 开始后处理渲染（渲染到FBO）
+        //postProcessing->beginRender();
 
         // 清空颜色和深度缓冲
 
@@ -397,7 +407,7 @@ int main() {
         
         // 渲染天空盒
 
-        //skybox->render(camera->getViewMatrix(), camera->getProjectionMatrix());
+        
 
         skybox->render(view, projection);
 
@@ -447,6 +457,11 @@ int main() {
         glDepthMask(GL_TRUE);
         
 
+       
+       
+
+        // 更新音频系统
+        AudioManager::getInstance().update();
         // 交换缓冲
 
         glfwSwapBuffers(window);

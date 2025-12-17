@@ -189,7 +189,7 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
 
 void ParticleSystem::addFirework(FireworkType type) {
 
-	std::cout << "Adding firework of type " << (type == common ? "common" : "scatter") << std::endl;
+	std::cout << "Add firework of type " << type << std::endl;
 
 	if (fireworks.size() >= maxFireworks) return;
     // 1. 位置/速度/粒子数保持原样

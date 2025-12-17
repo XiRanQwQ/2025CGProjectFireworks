@@ -15,8 +15,8 @@ void main(){
     // 2. 生命初期「过曝抑制」曲线
     // lifeT: 1.0(出生) → 0.0(死亡)
     // 前 20 % 时间亮度被额外压低，避免中心叠白
-    float suppress = smoothstep(0.0, 0.2, 1.0 - v_lifeT);  // 0→1
-    float brightness = radial * (0.7 + 0.3 * suppress);    // 0.7→1.0
+    float suppress = smoothstep(0.0, 0.5, 1.0 - v_lifeT);  // 0→1
+    float brightness = radial * (0.01 + 0.99 * suppress);    // 0.7→1.0
 
     // 3. 最终颜色（alpha 仍由顶点衰减）
     vec3 rgb = v_color.rgb * brightness;

@@ -145,11 +145,11 @@ void Firework::explode_common()
 
     // 内球参数
     float innerSpeed = random(40.f, 50.f);
-    float innerLife = random(0.5f, 1.0f);
+    float innerLife = random(1.5f, 2.5f);
 
     // 外球参数
-    float outerSpeed = random(60.f,80.f);
-    float outerLife = random(1.5f, 2.5f);
+    float outerSpeed = random(60.f,70.f);
+    float outerLife = random(1.0f, 2.0f);
 
 
     auto color1 = glm::vec4(random_vec3(), 1.0f);
@@ -164,7 +164,7 @@ void Firework::explode_common()
         glm::vec3 vel = dir * speed;
 
         glm::vec3 c = glm::mix(color1, color2, random(0.f, 0.3f));
-        particles.emplace_back(rocket.position, vel, innerLife, glm::vec4(c, 1.f));
+        particles.emplace_back(rocket.position, vel, innerLife, glm::vec4(c, 1.f),1.0f);
         
     }
 
@@ -176,7 +176,7 @@ void Firework::explode_common()
         glm::vec3 vel = dir * speed;
         
         glm::vec3 c = glm::mix(color2, color1, random(0.f, 0.2f));
-        particles.emplace_back(rocket.position, vel, outerLife, glm::vec4(c, 1.f));
+        particles.emplace_back(rocket.position, vel, outerLife, glm::vec4(c, 1.f),1.0f);
        
     }
 }

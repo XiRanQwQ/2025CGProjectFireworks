@@ -111,7 +111,7 @@ bool Ground::init()
 
     int w, h, ch;
     unsigned char* data = stbi_load(
-        "D:/CGFP ver1/assets/grass.jpg",
+        "assets/grass.jpg",
         &w, &h, &ch, 0);
 
     if (data)
@@ -167,8 +167,8 @@ void Ground::render(const glm::mat4& view, const glm::mat4& projection, float yO
 				//"D:/CGFinalProject/CGFP/shaders/ground.vert",
 				//"D:/CGFinalProject/CGFP/shaders/ground.frag"
 
-                "D:/CGFP/shaders/ground.vert",
-                "D:/CGFP/shaders/ground.frag"
+                "shaders/ground.vert",
+                "shaders/ground.frag"
 
 			);
 
