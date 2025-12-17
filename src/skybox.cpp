@@ -160,8 +160,8 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
     if (!shaderInitialized) {
         try {
 
-            skyboxShader = Shader("shaders/skybox.vert",
-                "shaders/skybox.frag");
+            skyboxShader = Shader("D:/CGFP/shaders/skybox.vert",
+                "D:/CGFP/shaders/skybox.frag");
 
             shaderInitialized = true;
             std::cout << "create success" << std::endl;

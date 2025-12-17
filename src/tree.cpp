@@ -96,14 +96,14 @@ bool Tree::init()
 {
     // 静态指定树干纹理路径
 
-    const std::string trunkTexturePath = "assets/bark.jpg";
+    const std::string trunkTexturePath = "D:/CGFP ver1/assets/bark.jpg";
 
     std::cout << "Loading tree texture from: " << trunkTexturePath << std::endl;
 
     // 创建着色器
 
     try {
-        shader = new Shader("shaders/tree.vert", "shaders/tree.frag");
+        shader = new Shader("D:/CGFP/shaders/tree.vert", "D:/CGFP/shaders/tree.frag");
         //if (!shader->isCompiled()) {
         //    std::cout << "Tree shader compile failed!" << std::endl;
         //    return false;
