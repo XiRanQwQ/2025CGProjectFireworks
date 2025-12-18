@@ -180,22 +180,22 @@ int main() {
 
     // 设置清除颜色
 
-    glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
-    glClear( GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_DEPTH_BUFFER_BIT);
     // 启用混合
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
+
+
     // 初始化相机 - 调整位置以确保能看到烟花
 
     camera = new Camera(
-        glm::vec3(-200.0f, 10.0f, 0.0f), 
-        glm::vec3(0.0f, 10.0f, 0.0f),     
-        glm::vec3(0.0f, 1.0f, 0.0f),     
-        60.0f,                           
-        (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT  
+        glm::vec3(-200.0f, 10.0f, 0.0f),
+        glm::vec3(0.0f, 10.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        60.0f,
+        (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT
     );
 
 
@@ -217,12 +217,11 @@ int main() {
     }
 
 
-    
+   
+
     // 初始化地面
 
-    std::cout << "ground addr = " << ground << std::endl;
     ground = new Ground(1000.0f);
-    std::cout << "ground addr after new = " << ground << std::endl;
 
     if (ground == nullptr) {
         std::cerr << "ground is nullptr!" << std::endl;
@@ -235,12 +234,10 @@ int main() {
     }
 
     // 初始化树木
-    
+
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    std::cout << "tree addr = " << tree << std::endl;
     tree = new Tree();
-    std::cout << "tree addr after new = " << tree << std::endl;
 
     if (!tree->init()) {
         std::cerr << "Failed to initialize tree" << std::endl;
@@ -248,7 +245,7 @@ int main() {
     }
 
     // 生成森林 
-    
+
     for (int x = 0; x < FOREST_SIZE_X; ++x)
     {
         for (int z = 0; z < FOREST_SIZE_Z; ++z)
@@ -274,7 +271,7 @@ int main() {
     }
 
 
-    
+
 
     // 初始化音频系统
     if (!AudioManager::getInstance().init()) {
@@ -285,7 +282,6 @@ int main() {
 
     ParticleSystem particleSystem(MAX_FIREWORKS);
     particleSystem.init();
-
 
 
     // 初始化后处理效果
@@ -339,27 +335,27 @@ int main() {
             camera->move(0.0f, 0.0f, -cameraSpeed * deltaTime);
         }
         // 单次触发，按一下 F 发一颗
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) { 
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
             if (!wasPressed_F) {
                 particleSystem.addFirework();   // 立即调用你现成的接口
-				wasPressed_F = true;
+                wasPressed_F = true;
             }
         }
         else {
-            
+
             wasPressed_F = false;
         }
-        if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
-            if(!wasPressed_G){
+        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            if (!wasPressed_G) {
                 particleSystem.addFirework(scatter);
                 wasPressed_G = true;
             }
         }
-        else{
+        else {
             wasPressed_G = false;
-		}
-        if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
-            if(!wasPressed_H){
+        }
+        if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+            if (!wasPressed_H) {
                 particleSystem.addFirework(star);
                 wasPressed_H = true;
             }
@@ -372,9 +368,10 @@ int main() {
                 particleSystem.addFirework(flower);
                 wasPressed_J = true;
             }
-           
-        } else {
-                wasPressed_J = false;
+
+        }
+        else {
+            wasPressed_J = false;
         }
 
 
@@ -399,15 +396,15 @@ int main() {
         /*std::cout << " (View Matrix) : " << view[3][3] << std::endl;
         std::cout << " (Projection Matrix) : " << projection[3][3] << std::endl;*/
 
-        
-		// 渲染地面
-        
-		ground->render(view, projection, WORLD_GROUND_Y_OFFSET);
 
-        
+        // 渲染地面
+
+        ground->render(view, projection, WORLD_GROUND_Y_OFFSET);
+
+
         // 渲染天空盒
 
-        
+
 
         skybox->render(view, projection);
 
@@ -420,7 +417,7 @@ int main() {
 
 
 
-       
+
 
         // 渲染树木
 
@@ -448,17 +445,17 @@ int main() {
             );
         }
 
-     
+
         glDepthMask(GL_FALSE);
-        glEnable(GL_DEPTH_TEST);   
-         // 渲染粒子系统
+        glEnable(GL_DEPTH_TEST);
+        // 渲染粒子系统
         particleSystem.render(camera->getViewMatrix(), camera->getProjectionMatrix());
 
         glDepthMask(GL_TRUE);
-        
 
-       
-       
+
+
+
 
         // 更新音频系统
         AudioManager::getInstance().update();

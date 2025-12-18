@@ -6,19 +6,17 @@
 #include "audio.h"
 
 ParticleSystem::ParticleSystem(int maxFireworks)
-    : maxFireworks(maxFireworks){}
+    : maxFireworks(maxFireworks) {
+}
 
 
 void ParticleSystem::init()
 {
 
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_BLEND);
-
     particleShader = new Shader("shaders/particle_trail.vert", "shaders/particle_trail.frag");
-	rocketShader = new Shader("shaders/rocket.vert", "shaders/particle.frag");
-    
+    rocketShader = new Shader("shaders/rocket.vert", "shaders/particle.frag");
+
     // Load firework audio files
     fireworkSoundBuffer = AudioManager::getInstance().loadWAV("resources/sound/launch.wav");
     if (fireworkSoundBuffer == 0) {
@@ -33,7 +31,7 @@ void ParticleSystem::init()
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 10 * sizeof(float), nullptr, GL_STREAM_DRAW);
 
     // 2. 5 分量映射（pos 3D + color 4D + life 1D + maxLife 1D + size 1D）
-    constexpr int STRIDE = 10; 
+    constexpr int STRIDE = 10;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, STRIDE * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, STRIDE * sizeof(float), (void*)(3 * sizeof(float)));
@@ -47,10 +45,21 @@ void ParticleSystem::init()
     glBindVertexArray(0);
 
     createGradientTexture();
-	generateAndBindTrailTexture(64, 0.08f);
+    generateAndBindTrailTexture(64, 0.08f);
+
+    lightPool.resize(maxFireworks);
+    glGenBuffers(1, &lightsUBO);
+    //std::cout << "UBO handle=" << lightsUBO << '\n';
+    glBindBuffer(GL_UNIFORM_BUFFER, lightsUBO);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(PointLight) * maxFireworks * 2, nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsUBO); // binding = 1
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
 }
 
-void ParticleSystem::createGradientTexture(){
+void ParticleSystem::createGradientTexture() {
     uint8_t px[64];
     for (int i = 0; i < 64; ++i)
         px[i] = 255 * exp(-(i / 63.0f) * (i / 63.0f) * 4.0f); // 中心白→边缘黑
@@ -104,7 +113,7 @@ void ParticleSystem::update(float deltaTime) {
     }
 }
 
-void ParticleSystem::addParticleForRendering(std::vector<float>& particleData,const Particle& particle)
+void ParticleSystem::addParticleForRendering(std::vector<float>& particleData, const Particle& particle)
 {
     // 5×float 结构：pos 3D + color 4D + life 1D + maxLife 1D + size 1D
     particleData.push_back(particle.position.x);
@@ -114,7 +123,7 @@ void ParticleSystem::addParticleForRendering(std::vector<float>& particleData,co
     particleData.push_back(particle.color.r);        // color.r
     particleData.push_back(particle.color.g);        // color.g
     particleData.push_back(particle.color.b);        // color.b
-	particleData.push_back(particle.color.a);        // color.a
+    particleData.push_back(particle.color.a);        // color.a
 
     particleData.push_back(particle.life);          //  life
     particleData.push_back(particle.maxLife);        // r 分量 = maxLife
@@ -125,14 +134,37 @@ void ParticleSystem::addParticleForRendering(std::vector<float>& particleData,co
 
 void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
-	rocketData.clear();
+    //  清零公共灯池
+	memset(lightPool.data(), 0, sizeof(PointLight) * maxFireworks);
+    int lightIndex = 0;
+
+    rocketData.clear();
     particleData.clear();
     for (auto& fw : fireworks) {
+        if (fw.selfLight.active && lightIndex < maxFireworks) {
+            lightPool[lightIndex++] = fw.selfLight;
+            /*std::cout << "SelfLight (" << lightIndex - 1 << "):pos=(" << fw.selfLight.position.x << "," << fw.selfLight.position.y << "," << fw.selfLight.position.z << ")" <<
+                " color=(" << fw.selfLight.color.x << "," << fw.selfLight.color.y << "," << fw.selfLight.color.z << ")\n";*/
+        }
         if (fw.getStatus() == LAUNCHING)
-            addParticleForRendering(rocketData,fw.getRocket());
+            addParticleForRendering(rocketData, fw.getRocket());
         for (const auto& p : fw.getParticles())
-            addParticleForRendering(particleData,p);
+            addParticleForRendering(particleData, p);
     }
+
+    //std::cout << lightIndex << " active lights this frame.\n";
+    //  整包上传 GPU
+    glBindBuffer(GL_UNIFORM_BUFFER, lightsUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PointLight) * maxFireworks, lightPool.data());
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    // === 上传后立刻读回 ===
+   /* std::vector<PointLight> verify(maxFireworks);
+    glBindBuffer(GL_UNIFORM_BUFFER, lightsUBO);
+    glGetBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PointLight) * maxFireworks, verify.data());
+    printf("UBO[0] pos=(%.1f,%.1f,%.1f) color=(%.2f,%.2f,%.2f) active=%d\n",
+        verify[0].position.x, verify[0].position.y, verify[0].position.z,
+        verify[0].color.r, verify[0].color.g, verify[0].color.b,
+        verify[0].active);*/
 
     // === 2. 渲染火箭（如果有）===
     if (!rocketData.empty()) {
@@ -141,10 +173,6 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
         rocketShader->setMat4("projection", projectionMatrix);
         rocketShader->setMat4("view", viewMatrix);
         rocketShader->setMat4("model", glm::mat4(1.0f));
-        rocketShader->setBool("u_useTrail", true);
-        //glActiveTexture(GL_TEXTURE0 + 1); // 使用合适的纹理单元
-        //glBindTexture(GL_TEXTURE_2D, trailTextureID); // trailTextureID
-        //rocketShader->setInt("u_trailMask", 1);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER,
             rocketData.size() * sizeof(float),
@@ -160,9 +188,9 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
 
     // === 3. 渲染其他粒子）===
     if (!particleData.empty()) {
-     
+
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-       
+
         particleShader->use();
         particleShader->setMat4("projection", projectionMatrix);
         particleShader->setMat4("view", viewMatrix);
@@ -189,12 +217,12 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
 
 void ParticleSystem::addFirework(FireworkType type) {
 
-	std::cout << "Add firework of type " << type << std::endl;
+    std::cout << "Add firework of type " << type << std::endl;
 
-	if (fireworks.size() >= maxFireworks) return;
+    if (fireworks.size() >= maxFireworks) return;
     // 1. 位置/速度/粒子数保持原样
     auto pos = glm::vec3(random(50.0f, 70.0f), 0.0f, random(-200.0f, 200.0f));
-    auto vol = glm::vec3(0.0f, random(50.0f, 100.0f), 0.0f);
+    auto vol = glm::vec3(0.0f, random(80.0f, 120.0f), 0.0f);
     int particleCount = random(150, 400);
 
     float baseHue = random(15.0f, 220.0f);   // 橙→黄
@@ -208,7 +236,7 @@ void ParticleSystem::addFirework(FireworkType type) {
     rocketColor.b = glm::clamp(rocketColor.b + random(-0.05f, 0.05f), 0.0f, 1.0f);
 
     // 3. 创建烟花
-    fireworks.emplace_back(pos, vol, particleCount, rocketColor,type);
+    fireworks.emplace_back(pos, vol, particleCount, rocketColor, type);
 
     // 4. 音频保持原样
     if (AudioManager::getInstance().getNumActiveSources() >= 16) return;

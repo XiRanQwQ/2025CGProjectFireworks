@@ -158,8 +158,8 @@ bool Tree::init()
         else if (channels == 4)
             format = GL_RGBA;
 
-        std::cout << "Tree texture loaded: " << width << "x" << height
-            << ", channels: " << channels << std::endl;
+        /*std::cout << "Tree texture loaded: " << width << "x" << height
+            << ", channels: " << channels << std::endl;*/
 
 
 		// 创建 OpenGL 纹理对象

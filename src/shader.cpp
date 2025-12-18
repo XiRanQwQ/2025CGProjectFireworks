@@ -11,6 +11,8 @@ Shader::Shader()
 }
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+    std::cout << "Creating shader from vertex: " << vertexPath << ", fragment: " << fragmentPath << std::endl;
+
     // 1. 从文件路径读取着色器源码
     std::string vertexCode;
     std::string fragmentCode;

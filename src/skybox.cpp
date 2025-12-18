@@ -286,11 +286,11 @@ void Skybox::initGeometry() {
     vertices[102] = -halfSize; vertices[103] = halfSize; vertices[104] = halfSize;
     vertices[105] = -halfSize; vertices[106] = halfSize; vertices[107] = -halfSize;
 
-    std::cout << "skybox vert test:" << std::endl;
+   /* std::cout << "skybox vert test:" << std::endl;
     std::cout << "point num: " << (sizeof(vertices) / sizeof(vertices[0])) / 3 << std::endl;
     for (int i = 0; i < 6; ++i) {
         int idx = i * 3;
         std::cout << "point " << i << ": (" << vertices[idx] << ", "
             << vertices[idx + 1] << ", " << vertices[idx + 2] << ")" << std::endl;
-    }
+    }*/
 }
