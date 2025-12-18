@@ -418,3 +418,5 @@ Thumbs.db
 *.log
 /shaders/particle_glow.frag
 /shaders/particle_update.vert
+/shaders/particle.frag
+/shaders/particle.vert
