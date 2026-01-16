@@ -14,6 +14,8 @@
 #include "ground.h"
 #include "audio.h"
 #include "post_processing.h"
+#include "model.h"
+
 
 
 // 窗口尺寸
@@ -40,6 +42,8 @@ Skybox* skybox = nullptr;
 Ground* ground = nullptr;
 Tree* tree = nullptr;
 PostProcessing* postProcessing = nullptr;
+Model* sceneModel = nullptr;
+Shader* modelShader = nullptr;
 
 // 鼠标状态
 
@@ -85,6 +89,13 @@ struct TreeInstance {
 };
 
 std::vector<TreeInstance> forest;
+
+// 场景模型路径
+
+constexpr bool LOAD_GLTF = false; 
+constexpr const char* MODEL_PATH = LOAD_GLTF
+    ? "model/building/scene.gltf"
+    : "model/source/1/combined02.obj";
 
 
 // 键盘回调函数
@@ -243,6 +254,17 @@ int main() {
         std::cerr << "Failed to initialize tree" << std::endl;
         return -1;
     }
+
+    // 初始化通用模型（支持 glTF/OBJ），通过 LOAD_GLTF 切换
+    
+    try {
+        modelShader = new Shader("shaders/model.vert", "shaders/model.frag");
+        sceneModel = new Model(MODEL_PATH);
+        std::cout << "[Model] loaded: " << MODEL_PATH << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to init model: " << e.what() << std::endl;
+    }
+
 
     // 生成森林 
 
@@ -416,6 +438,25 @@ int main() {
         particleSystem.update(deltaTime);
 
 
+        // 渲染通用模型
+        
+        if (sceneModel && modelShader)
+        {
+            modelShader->use();
+            modelShader->setMat4("view", view);
+            modelShader->setMat4("projection", projection);
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(
+                model,
+                glm::vec3(0.0f, WORLD_GROUND_Y_OFFSET, 0.0f)
+            );
+            model = glm::scale(model, glm::vec3(0.1f)); // 如需缩放模型可调整此处
+
+            modelShader->setMat4("model", model);
+            sceneModel->Draw(*modelShader);
+        }
+
 
 
 
@@ -471,6 +512,9 @@ int main() {
     delete skybox;
     delete ground;
     delete tree;
+    delete sceneModel;
+    delete modelShader;
+
 
     // 关闭音频系统
     AudioManager::getInstance().shutdown();
