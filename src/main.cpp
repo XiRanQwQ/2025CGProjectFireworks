@@ -95,7 +95,7 @@ std::vector<TreeInstance> forest;
 constexpr bool LOAD_GLTF = false; 
 constexpr const char* MODEL_PATH = LOAD_GLTF
     ? "model/building/scene.gltf"
-    : "model/source/1/combined02.obj";
+    : "model/source/combined02.obj";
 
 
 // 键盘回调函数
