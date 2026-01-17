@@ -28,9 +28,14 @@ set(SOURCES
     src/ground.cpp
     src/tree.cpp
     src/utils.cpp
+    src/post_processing.cpp
+    src/fbo.cpp
+    src/model.cpp
+    src/mesh.cpp
 )
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(assimp REQUIRED)
 
 # Find OpenAL
 find_package(OpenAL REQUIRED)
@@ -55,6 +60,7 @@ target_link_libraries(${PROJECT_NAME}
     OpenGL::GL
     glfw
     OpenAL::OpenAL
+    assimp::assimp
 )
 # 处理着色器文件
 file(GLOB SHADER_SOURCES
@@ -76,4 +82,13 @@ set(AUDIO_FILES
 foreach(AUDIO ${AUDIO_FILES})
     get_filename_component(FILENAME ${AUDIO} NAME)
     configure_file(${AUDIO} ${CMAKE_BINARY_DIR}/${FILENAME} COPYONLY)
+endforeach()
+
+
+file(GLOB_RECURSE MODEL_FILES
+    ${CMAKE_SOURCE_DIR}/model/*
+)
+foreach(MODEL_FILE ${MODEL_FILES})
+    file(RELATIVE_PATH REL_PATH ${CMAKE_SOURCE_DIR}/model ${MODEL_FILE})
+    configure_file(${MODEL_FILE} ${CMAKE_BINARY_DIR}/model/${REL_PATH} COPYONLY)
 endforeach()
