@@ -42,9 +42,17 @@ void Firework::update(float dt)
 
     // 爆炸拖影：每帧一个点（主粒子已更新完）
     if (status == EXPLOSING) {
+
+        // 根据帧时间动态调节拖尾密度，降低卡顿（目标 60FPS 时约 0.3）
+
+        float trailDensity = 0.3f;
+        if (dt > 0.0f) {
+            trailDensity = glm::clamp(0.3f * (0.016f / dt), 0.1f, 0.5f);
+        }
+        
         for (size_t i = 0; i < particles.size(); ++i) {
 
-            if (!particles[i].isTrail) {
+            if (!particles[i].isTrail && random(0.0f, 1.0f) < trailDensity) {
                 if (type == common) {
                     particles.emplace_back(particles[i].position, glm::vec3{ 0.f },
                         random(0.5f, 1.5f), particles[i].color, true, true);
@@ -67,14 +75,14 @@ void Firework::update(float dt)
         }
     }
 
-    // ===== 2. 统一更新 & 回收 =====
-    for (auto it = particles.begin(); it != particles.end();) {
-        it->update(dt);
-        if (!it->isAlive()) {
-            it = particles.erase(it);
-        }
-        else {
-            ++it;
+    // ===== 2. 统一更新 & 回收（swap-pop，无序删除避免批量移动） =====
+    for (size_t i = 0; i < particles.size();) {
+        particles[i].update(dt);
+        if (!particles[i].isAlive()) {
+            particles[i] = particles.back();
+            particles.pop_back();
+        } else {
+            ++i;
         }
     }
 
@@ -137,6 +145,11 @@ void Firework::explode()
         selfLight.position = rocket.position;
         selfLight.active = true;
     }
+
+    // 预留足够容量，避免爆炸与消失阶段频繁扩容/移动造成卡顿
+    if (particles.capacity() < static_cast<size_t>(particleCount * 3)) {
+        particles.reserve(static_cast<size_t>(particleCount * 3));
+    }    
 
     if (type == common) {
         explode_common();
