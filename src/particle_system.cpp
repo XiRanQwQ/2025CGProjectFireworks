@@ -57,6 +57,11 @@ void ParticleSystem::init()
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
+
+	// 预留 CPU 侧数组容量，避免反复扩容导致的抖动
+
+	particleData.reserve(MAX_PARTICLES * 10);
+	rocketData.reserve(MAX_PARTICLES * 10);
 }
 
 void ParticleSystem::createGradientTexture() {
@@ -173,15 +178,32 @@ void ParticleSystem::render(const glm::mat4& viewMatrix, const glm::mat4& projec
         rocketShader->setMat4("projection", projectionMatrix);
         rocketShader->setMat4("view", viewMatrix);
         rocketShader->setMat4("model", glm::mat4(1.0f));
+        // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        // glBufferData(GL_ARRAY_BUFFER,
+        //     rocketData.size() * sizeof(float),
+        //     rocketData.data(),
+        //     GL_DYNAMIC_DRAW); // 或 GL_STREAM_DRAW
+
+		// 使用映射写入，避免每帧重分配导致的阻塞
+
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER,
+        void* mappedRocket = glMapBufferRange(
+            GL_ARRAY_BUFFER,
+            0,
             rocketData.size() * sizeof(float),
-            rocketData.data(),
-            GL_DYNAMIC_DRAW); // 或 GL_STREAM_DRAW
+            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        if (mappedRocket) {
+            std::memcpy(mappedRocket, rocketData.data(), rocketData.size() * sizeof(float));
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        }
+
 
         glBindVertexArray(VAO); // 确保 VAO layout 与 rocketShader 匹配！
 
-        glDrawArrays(GL_POINTS, 0, rocketData.size() / 10); // 每粒子10个float
+        // glDrawArrays(GL_POINTS, 0, rocketData.size() / 10); // 每粒子10个float
+		glDepthMask(GL_FALSE);
+		glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(rocketData.size() / 10));
+		glDepthMask(GL_TRUE);
 
         glBindVertexArray(0);
     }
