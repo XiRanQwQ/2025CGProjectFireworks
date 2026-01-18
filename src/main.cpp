@@ -79,6 +79,8 @@ const float TREE_SPACING = 40.0f; // 基础间距
 const float JITTER = 1.2f;       // 随机扰动范围
 const float TREE_BASE_SCALE = 50.0f;  // 放大50 倍
 constexpr float WORLD_GROUND_Y_OFFSET = -30.0f;
+const glm::vec3 FOREST_OFFSET = glm::vec3(200.0f, 0.0f, 0.0f); // 将森林整体向 +X 方向平移，避免与模型重合
+
 
 // 全局树木模型指针
 
@@ -280,7 +282,7 @@ int main() {
                 x * TREE_SPACING + jitterX,
                 0.0f,
                 z * TREE_SPACING + jitterZ
-            );
+            ) + FOREST_OFFSET;
 
             // 随机缩放
             t.scale = 0.8f + (rand() % 100) / 100.0f * 0.5f;
@@ -451,7 +453,7 @@ int main() {
                 model,
                 glm::vec3(0.0f, WORLD_GROUND_Y_OFFSET, 0.0f)
             );
-            model = glm::scale(model, glm::vec3(0.1f)); // 如需缩放模型可调整此处
+            model = glm::scale(model, glm::vec3(0.3f)); // 如需缩放模型可调整此处
 
             modelShader->setMat4("model", model);
             sceneModel->Draw(*modelShader);
