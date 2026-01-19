@@ -1,4 +1,4 @@
-﻿#version 330 core
+#version 330 core
 layout(location = 0) in vec3 aPos;          // 0-2  当前坐标
 layout(location = 1) in vec4 aColor;        // 3-6  出生主色 + 初始 alpha
 layout(location = 2) in float aLife;        // 7    剩余 life
