@@ -3,6 +3,8 @@
 
 #include<glm/glm.hpp>
 #include<iostream>
+#include<vector>
+using namespace std;
 inline constexpr float M_PI = 3.14159265358979323846f;
 
 inline constexpr float gravity = 9.81f;

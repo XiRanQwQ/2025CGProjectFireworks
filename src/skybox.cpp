@@ -81,6 +81,20 @@ GLuint Skybox::loadCubeMap(const std::vector<std::string>& faces) {
     return textureID;
 }
 
+void Skybox::loadCloudTexture(const char* path) {
+    glGenTextures(1, &cloudTexture);
+    glBindTexture(GL_TEXTURE_2D, cloudTexture);
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    stbi_image_free(data);
+}
+
+
 bool Skybox::init(const std::vector<std::string>& faces) {
 
     // 初始化几何体
@@ -128,7 +142,11 @@ bool Skybox::init(const std::vector<std::string>& faces) {
         std::cerr << "Failed to load cubemap texture" << std::endl;
         return false;
     }
-
+    loadCloudTexture("resources/skybox/clouds.png");
+    if (cloudTexture == 0) {
+        std::cerr << "Failed to load cloud texture" << std::endl;
+        return false;
+    }
 
     return true;
 }
@@ -139,8 +157,11 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
     GLint depthFunc;
     glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
 
-    // 设置天空盒专用的深度测试
+	//云层混合
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // 设置天空盒专用的深度测试
     glDepthFunc(GL_LEQUAL);  // 关键：改为小于或等于[3,6](@ref)
     glDepthMask(GL_FALSE);   // 禁用深度写入
 
@@ -186,10 +207,21 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
     skyboxShader.setMat4("projection", projectionMatrix);
     skyboxShader.setMat4("view", skyboxView);
 
+    // 1. 云移动时间（从程序启动到现在的秒数）
+    skyboxShader.setFloat("CloudTime", glfwGetTime());
+    // 2. 云移动速度（可根据需求调整，夜晚建议慢速）
+    skyboxShader.setVec2("CloudSpeed", glm::vec2(0.002f, 0.001f));
+    // 3. 云纹理绑定到纹理单元1
+    skyboxShader.setInt("CloudTexture", 1);
+
     // 绑定立方体贴图
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
     skyboxShader.setInt("skybox", 0);
+
+    // ===== 新增：绑定云纹理（纹理单元1） =====
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, cloudTexture);
 
     // 绑定VAO并绘制
 
@@ -201,6 +233,9 @@ void Skybox::render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
 
     glDepthMask(GL_TRUE);
     glDepthFunc(depthFunc);
+
+	// 关闭混合
+    glDisable(GL_BLEND);
 
     // 检查OpenGL错误
 

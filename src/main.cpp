@@ -224,16 +224,14 @@ int main() {
     };
 
     skybox = new Skybox();
-    if (!skybox->init(skyboxTextures)) {
+    if (!skybox->init(skyboxTextures)) 
+    {
         std::cerr << "Failed to initialize skybox" << std::endl;
         return -1;
     }
-
-
-   
+    std::cout << "Cloud Texture ID:" << skybox->getCloudTexture() << std::endl;
 
     // 初始化地面
-
     ground = new Ground(1000.0f);
 
     if (ground == nullptr) {
@@ -453,7 +451,7 @@ int main() {
                 model,
                 glm::vec3(0.0f, WORLD_GROUND_Y_OFFSET, 0.0f)
             );
-            model = glm::scale(model, glm::vec3(0.3f)); // 如需缩放模型可调整此处
+            model = glm::scale(model, glm::vec3(0.5f)); // 如需缩放模型可调整此处
 
             modelShader->setMat4("model", model);
             sceneModel->Draw(*modelShader);
@@ -464,29 +462,29 @@ int main() {
 
         // 渲染树木
 
-        for (const auto& t : forest)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
+        //for (const auto& t : forest)
+        //{
+        //    glm::mat4 model = glm::mat4(1.0f);
 
             /*model = glm::translate(model, t.position);*/
-            model = glm::translate(
-                model,
-                glm::vec3(
-                    t.position.x,
-                    t.position.y + WORLD_GROUND_Y_OFFSET,
-                    t.position.z
-                )
-            );
+        //    model = glm::translate(
+        //        model,
+        //        glm::vec3(
+        //            t.position.x,
+        //            t.position.y + WORLD_GROUND_Y_OFFSET,
+        //            t.position.z
+        //        )
+        //    );
 
-            model = glm::rotate(model, t.rotationY, glm::vec3(0, 1, 0));
-            model = glm::scale(model, glm::vec3(TREE_BASE_SCALE * t.scale));
+        //    model = glm::rotate(model, t.rotationY, glm::vec3(0, 1, 0));
+        //    model = glm::scale(model, glm::vec3(TREE_BASE_SCALE * t.scale));
 
-            tree->draw(
-                camera->getViewMatrix(),
-                camera->getProjectionMatrix(),
-                model
-            );
-        }
+        //    tree->draw(
+        //        camera->getViewMatrix(),
+        //        camera->getProjectionMatrix(),
+        //        model
+        //    );
+        //}
 
 
         glDepthMask(GL_FALSE);
